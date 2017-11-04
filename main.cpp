@@ -7,12 +7,12 @@ using namespace std;
 
 class automat
 {
-	private:	
+	private:
 		int type; //0 - mealy | 1 - moore
 		int states; //stany czyli kolejne wiersze
 		int inputs; //wejscia
-		int **stateArr; //tablica stanów
-		char **output; //tablica wyjsæ
+		int **stateArr; //tablica stanï¿½w
+		char **output; //tablica wyjsï¿½
 		vector< vector < vector<int> > > ungerPaull;
 		vector< vector<int> > Qmax;
 	public:
@@ -23,16 +23,20 @@ class automat
 		}
 		void AllocAutomat(int ty, int st, int in)
 		{
+			printf("ty = %d\n", ty);
+			printf("st = %d\n", st);
+			printf("in = %d\n", in);
+
 			type = ty;
 			states = st;
 			inputs = in;
-			
-			//alokacja pamiêci na stany automatu dla poszczególnych wejsæ
+
+			//alokacja pamiï¿½ci na stany automatu dla poszczegï¿½lnych wejsï¿½
 			stateArr = new int*[st];
 			for(int i = 0; i < st; ++i)
 				stateArr[i] = new int[in];
-			
-			//alokacja pamiêci na tablice wyjscia
+
+			//alokacja pamiï¿½ci na tablice wyjscia
 			if(type == 0) //mealy
 			{
 				output = new char*[st];
@@ -69,9 +73,11 @@ class automat
 		}
 		void ReadAutomatFromFile(FILE *f)
 		{
+			while(!isdigit(fgetc(f)));
+			fseek(f, -1, SEEK_CUR);
 			fscanf(f, "%d%d%d", &type, &states, &inputs); //wczytaj dane startowe z pliku
 			AllocAutomat(type, states, inputs);
-			
+
 			cout << type << " " << states << " " << inputs << "\n";
 			if(type == 0) cout << "automat mally'ego\n";
 			else cout << "automat moore'a\n";
@@ -86,22 +92,22 @@ class automat
 					{
 						stateArr[i][j] = -1;
 					}
-					else stateArr[i][j] = atoi(temp);	
+					else stateArr[i][j] = atoi(temp);
 				}
 				if(type == 0)
 				{
 					for(int j = 0; j < inputs; ++j)
 					{
-						fscanf(f, "%s", &output[i][j]);	
+						fscanf(f, "%s", &output[i][j]);
 					}
 				}
 				else
 				{
-					fscanf(f, "%s", &output[i][0]);	
+					fscanf(f, "%s", &output[i][0]);
 				}
 			}
-			
-			for(int i = 0; i < states; ++i) //wyœwietlanie tabeli z danymi
+
+			for(int i = 0; i < states; ++i) //wyï¿½wietlanie tabeli z danymi
 			{
 				for(int j = 0; j < inputs; ++j)
 				{
@@ -122,7 +128,7 @@ class automat
 				}
 			}
 		}
-		
+
 		void CreateUngerPaullTable()
 		{
 			for(int i = 0; i < states - 1; ++i) //inicjalizacja tablicy
@@ -134,17 +140,17 @@ class automat
 					//tempInt.push_back(-3);
 					tempPaull.push_back(tempInt);
 				}
-				ungerPaull.push_back(tempPaull);	
+				ungerPaull.push_back(tempPaull);
 			}
-			
+
 			for(int i = 0; i < states - 1; ++i) ungerPaull[i][0].push_back(-3); //pierwsza linia to same 3
-			
-			for(int i = 0; i < states; ++i) //wype³nianie
+
+			for(int i = 0; i < states; ++i) //wypeï¿½nianie
 			{
 				for(int j = i + 1; j < states; ++j)
 				{
 					bool match = false;
-					//sprawdzenie dopasowania wyjœcia
+					//sprawdzenie dopasowania wyjï¿½cia
 					for(int k = 0; k < inputs; ++k)
 					{
 						if((output[i][k] == output[j][k]) || (output[i][k] == '-') || (output[j][k] == '-'))
@@ -165,14 +171,14 @@ class automat
 							//wrzucenie pary do tablicy
 							if(stateArr[i][k] != -1 && stateArr[j][k] != -1 && stateArr[j][k] != stateArr[i][k] )
 							{
-								if(stateArr[i][k] > stateArr[j][k]) //segregacja wyników dla u³atwienia
+								if(stateArr[i][k] > stateArr[j][k]) //segregacja wynikï¿½w dla uï¿½atwienia
 								{
-									ungerPaull[i][j].push_back(stateArr[j][k]); 
+									ungerPaull[i][j].push_back(stateArr[j][k]);
 									ungerPaull[i][j].push_back(stateArr[i][k]);
 								}
 								else
 								{
-									ungerPaull[i][j].push_back(stateArr[i][k]); 
+									ungerPaull[i][j].push_back(stateArr[i][k]);
 									ungerPaull[i][j].push_back(stateArr[j][k]);
 								}
 							}
@@ -186,8 +192,8 @@ class automat
 					else ungerPaull[i][j].push_back(-2);
 				}
 			}
-			
-			//pozbycie siê z tablicy sprzecznoœci
+
+			//pozbycie siï¿½ z tablicy sprzecznoï¿½ci
 			int iteration = (((states - 1)*(states - 1)) / 2) + states - 1;
 			for(int times = 0; times < iteration; ++times)
 			{
@@ -195,7 +201,7 @@ class automat
 				{
 					for(int j = 0; j < states - 1; ++j)
 					{
-						if(ungerPaull[j][i].size() > 0 && ungerPaull[j][i][0] == -2) //gdy znajdzie siê sprzecznoœæ trzeba poszukaæ pól które
+						if(ungerPaull[j][i].size() > 0 && ungerPaull[j][i][0] == -2) //gdy znajdzie siï¿½ sprzecznoï¿½ï¿½ trzeba poszukaï¿½ pï¿½l ktï¿½re
 						{
 							for(int m = 0; m < states; ++m) //przechodzenie przez tablice paulliego
 							{
@@ -204,8 +210,8 @@ class automat
 									for(int k = 0; k < ungerPaull[n][m].size(); ++k)
 									{
 										if(ungerPaull[n][m][0] == -3) break; //nic tu nie ma
-										if(ungerPaull[n][m][0] == -2) break; //jeœli pole ju¿ jest zaznaczone jako sprzecznoœæ to pomija
-										if(ungerPaull[n][m][0] == -4) break; //pomijamy ca³kowicie niesprzeczne
+										if(ungerPaull[n][m][0] == -2) break; //jeï¿½li pole juï¿½ jest zaznaczone jako sprzecznoï¿½ï¿½ to pomija
+										if(ungerPaull[n][m][0] == -4) break; //pomijamy caï¿½kowicie niesprzeczne
 										if(ungerPaull[n][m][k] < ungerPaull[n][m][k + 1])
 										{
 											//cout << i  << " " << j << " ; "<< n << " " << m << "\n";
@@ -232,15 +238,15 @@ class automat
 												}
 											}
 											++k;
-										}			
+										}
 									}
 								}
-							}	
+							}
 						}
 					}
-				} //koniec pozbywania siê niesprzecznoœci
+				} //koniec pozbywania siï¿½ niesprzecznoï¿½ci
 			}
-			
+
 			for(int i = 0; i < states; ++i)
 			{
 				for(int j = 0; j < states - 1; ++j)
@@ -248,8 +254,8 @@ class automat
 					for(int k = 0; k < ungerPaull[j][i].size(); k+=2)
 					{
 						if(ungerPaull[j][i][0] == -3) break; //nic tu nie ma
-						if(ungerPaull[j][i][0] == -2) break; //jeœli pole ju¿ jest zaznaczone jako sprzecznoœæ to pomija
-						if(ungerPaull[j][i][0] == -4) break; //pomijamy ca³kowicie niesprzeczne
+						if(ungerPaull[j][i][0] == -2) break; //jeï¿½li pole juï¿½ jest zaznaczone jako sprzecznoï¿½ï¿½ to pomija
+						if(ungerPaull[j][i][0] == -4) break; //pomijamy caï¿½kowicie niesprzeczne
 						if(i < j)
 						{
 							if(ungerPaull[j][i][k] - 1 == i && ungerPaull[j][i][k + 1] - 1 == j)
@@ -274,20 +280,20 @@ class automat
 								break;
 							}
 						}
-						
-						
+
+
 					}
 				}
 			}
-			
+
 			cout << "\nTablica: Unger-Paull'a\n";
-			for(int i = 1; i < states; ++i) //wyœwietlanie tablicy paulliego
+			for(int i = 1; i < states; ++i) //wyï¿½wietlanie tablicy paulliego
 			{
 				for(int j = 0; j < states - 1; ++j)
 				{
 					for(int k = 0; k < ungerPaull[j][i].size(); ++k)
 					{
-						//-3 nic nie oznacza | -4 to V czyli wszystki zgodne | -2 to X czyli sprzecznoœæ
+						//-3 nic nie oznacza | -4 to V czyli wszystki zgodne | -2 to X czyli sprzecznoï¿½ï¿½
 						if(ungerPaull[j][i][k] == -3)
 						{
 							cout << " ";
@@ -312,33 +318,31 @@ class automat
 				}
 				cout << "\n";
 			}
-			
-			
+
+
 		}
-		
-		int OrganizeFamily() //³¹czy stany w jaknajwiêksze grupy oraz zlicza iloœæ po³¹czonych grup by je zwróciæ
+
+		int OrganizeFamily() //ï¿½ï¿½czy stany w jaknajwiï¿½ksze grupy oraz zlicza iloï¿½ï¿½ poï¿½ï¿½czonych grup by je zwrï¿½ciï¿½
 		{
 			for(int i = 0; i < Qmax.size(); ++i)
 			{
 				for(int j = 0; j < Qmax[i].size(); ++j)
 				{
 					cout << Qmax[i][j];
-					if(j%2 == 0) cout << " ; ";
+					if(j%2 == 0) cout << "  ";
 				}
 				cout << " | ";
 			}
-			cout << "\n";
-			
-			return 0; //zwraca iloœæ liczb które trzeba siê skreœli³o
+			return 0; //zwraca iloï¿½ï¿½ liczb ktï¿½re trzeba siï¿½ skreï¿½liï¿½o
 		}
-		
+
 		void FindMaxFamily()
 		{
 			vector<int> temp;
 			int actualFamily = -1;
 			cout << "\n";
-			
-			for(int i = states - 2; i >= 0; --i) //wyœwietlanie tablicy paulliego
+
+			for(int i = states - 2; i >= 0; --i) //wyï¿½wietlanie tablicy paulliego
 			{
 				for(int j = states - 1; j >= 1; --j)
 				{
@@ -359,8 +363,8 @@ class automat
 				actualFamily -= OrganizeFamily();
 
 			}
-			
-			
+
+
 			cout << "\n\nMaksymalne rodziny stanow niesprzecznych\n";
 			for(int i = 0; i < Qmax.size(); ++i)
 			{
@@ -371,21 +375,21 @@ class automat
 				}
 				cout << " | ";
 			}
-			
+
 		}
-		
+
 		void CreateMinTable()
 		{
-			
+
 		}
-		
+
 		void Minimalize()
 		{
 			CreateUngerPaullTable();
 			FindMaxFamily();
 			CreateMinTable();
 		}
-		
+
 		inline int GetType()
 		{
 			return type;
@@ -402,21 +406,28 @@ class automat
 
 int main(int argc, char** argv)
 {
-	FILE *f = fopen("automaty.txt", "r");
-	
+	if(argc != 2)
+	{
+		printf("Wrong number of arguments\n");
+		return 1;
+	}
+
+
+	FILE *f = fopen(argv[1], "r");
+
 	if(f == NULL)
 	{
 		printf("can not find file");
 		return 1;
 	}
-	
-	
+
+
 	automat a;
 	a.ReadAutomatFromFile(f);
 	a.Minimalize();
-	
-	
+
+
 	fclose(f);
-	
+
 	return 0;
 }
