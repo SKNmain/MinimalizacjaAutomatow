@@ -333,6 +333,7 @@ class automat
 				}
 				cout << " | ";
 			}
+			cout << "\n";
 			return 0; //zwraca ilo�� liczb kt�re trzeba si� skre�li�o
 		}
 
@@ -406,14 +407,17 @@ class automat
 
 int main(int argc, char** argv)
 {
+	FILE *f;
+	
 	if(argc != 2)
 	{
 		printf("Wrong number of arguments\n");
-		return 1;
+		f = fopen("automaty.txt", "r");
 	}
-
-
-	FILE *f = fopen(argv[1], "r");
+	else
+	{
+		f = fopen(argv[1], "r");
+	}
 
 	if(f == NULL)
 	{
