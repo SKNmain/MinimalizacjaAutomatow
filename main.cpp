@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -321,6 +322,22 @@ class automat
 
 
 		}
+		
+		bool removeRedundant(vector<int>& redundant)
+		{
+			int j = 0;
+			unsigned int redundantSize = redundant.size();
+			for(int i = 0; i < redundantSize; ++i)
+			{
+				while(((++i != redundantSize) && (redundant[j] == redundant[i])));
+				//getchar();
+				redundant[++j] = redundant[i];
+			}
+			redundant.resize(j);
+			
+			for(int i = 0; i < redundant.size(); ++i)
+				cout << "tas " << redundant[i] << endl;
+		}
 
 		int OrganizeFamily() //ï¿½ï¿½czy stany w jaknajwiï¿½ksze grupy oraz zlicza iloï¿½ï¿½ poï¿½ï¿½czonych grup by je zwrï¿½ciï¿½
 		{
@@ -334,7 +351,102 @@ class automat
 				cout << " | ";
 			}
 			cout << "\n";
-			return 0; //zwraca iloï¿½ï¿½ liczb ktï¿½re trzeba siï¿½ skreï¿½liï¿½o
+			
+			int Qsize = Qmax.size();
+			vector<int> matching;
+			vector<int> blackList;
+			bool wypier = false;
+			
+			cout << "Qsize " << Qsize << "\n";
+			
+			//getchar();
+			
+			for(int i = 0; i < Qsize; ++i)
+			{
+				for(int j = i; j < Qmax.size(); ++j)
+				{
+					if(i != j)
+					{
+						cout << "Qmax[" << i << "] = " << Qmax[i].size() << endl;
+						cout << "Qmax[" << j << "] = " << Qmax[j].size() << endl;
+						for(int m = 0; m < Qmax[i].size() && !wypier; ++m)
+						{
+							for(int n = 0; n < Qmax[j].size(); ++n)
+							{
+								if(Qmax[i][m] == Qmax[j][n])
+								{
+									cout << " a = " << Qmax[i][m] << "\n";
+									matching.push_back(Qmax[i][m]);
+									continue;
+								}
+								else if(Qmax[i][m] < Qmax[j][n])
+								{
+									cout << "\nagh";
+									if(ungerPaull[Qmax[i][m] - 1][Qmax[j][n] - 1][0] == -2)
+									{
+										cout << "a\n";
+										wypier = true;
+										break;
+									}
+									else
+									{
+										cout << "b\n";
+										matching.push_back(Qmax[i][m]);
+										matching.push_back(Qmax[j][n]);
+									}
+								}
+								else if(Qmax[i][m] > Qmax[j][n])
+								{
+									if(ungerPaull[Qmax[j][n] - 1][Qmax[i][m] - 1][0] == -2)
+									{
+										cout << "c\n";
+										wypier = true;
+										break;
+									}
+									else
+									{
+										cout << "d\n";
+										matching.push_back(Qmax[j][n]);
+										matching.push_back(Qmax[i][m]);
+									}
+								}
+							}
+						}
+						cout << wypier << " " << matching.size() << "\n";
+						if(!wypier)
+						{
+							//matching przeci¹gn¹ przez unique
+							sort(matching.begin(), matching.end());
+							removeRedundant(matching);
+							blackList.push_back(i);
+							blackList.push_back(j);
+							
+							for(int o = 0; o < matching.size(); ++o) cout << "lol " << matching[o] << "\n";
+							
+							Qmax.push_back(matching);
+						}
+						matching.clear();
+						wypier = false;
+					}	
+				}
+			}
+			
+			int deleteImtes = 0;
+			
+			if(blackList.size() > 0)
+			{
+				sort(blackList.begin(), blackList.end());
+				removeRedundant(blackList);
+				
+				deleteImtes = blackList.size();
+				
+				for(int i = blackList.size() - 1; i >= 0; --i)
+				{
+					Qmax.erase(Qmax.begin() + blackList[i]);
+				}
+			}
+			
+			return deleteImtes; //zwraca iloœæ liczb ktï¿½re trzeba siï¿½ skreï¿½liï¿½o
 		}
 
 		void FindMaxFamily()
